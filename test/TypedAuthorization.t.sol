@@ -113,4 +113,43 @@ contract CounterTest is Test {
 
         authorizationA.execute(auth, signature);
     }
+
+    function test_ModifiedRecepient() public {
+        TypedAuthorization.Authorization memory auth = _authorization(
+            1 ether,
+            0,
+            block.timestamp + 1 days
+        );
+
+        bytes memory signature = _sign(authorizationA, auth);
+
+        vm.expectRevert("Invalid signer");
+
+        authorizationA.execute(
+            TypedAuthorization.Authorization({
+                user: user,
+                recipient: makeAddr("attacker"),
+                amount: 1 ether,
+                nonce: 0,
+                deadline: block.timestamp + 1 days
+            }),
+            signature
+        );
+    }
+    function test_ModifiedAmount() public {
+        TypedAuthorization.Authorization memory auth = _authorization(
+            1 ether,
+            0,
+            block.timestamp + 1 days
+        );
+
+        bytes memory signature = _sign(authorizationA, auth);
+
+        vm.expectRevert("Invalid signer");
+
+        authorizationA.execute(
+            _authorization(2 ether, 0, block.timestamp + 1 days),
+            signature
+        );
+    }
 }
