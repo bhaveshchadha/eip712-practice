@@ -168,4 +168,18 @@ contract CounterTest is Test {
             signature
         );
     }
+    function test_DeadlineCrossed() public {
+        TypedAuthorization.Authorization memory auth = _authorization(
+            1 ether,
+            0,
+            block.timestamp + 1 hours
+        );
+
+        bytes memory signature = _sign(authorizationA, auth);
+
+        vm.warp(block.timestamp + 1 days);
+        vm.expectRevert("Expired");
+
+        authorizationA.execute(auth, signature);
+    }
 }
