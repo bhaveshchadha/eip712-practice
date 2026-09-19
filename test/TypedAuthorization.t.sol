@@ -152,4 +152,20 @@ contract CounterTest is Test {
             signature
         );
     }
+    function test_ModifiedNonce() public {
+        TypedAuthorization.Authorization memory auth = _authorization(
+            1 ether,
+            0,
+            block.timestamp + 1 days
+        );
+
+        bytes memory signature = _sign(authorizationA, auth);
+
+        vm.expectRevert("Invalid nonce");
+
+        authorizationA.execute(
+            _authorization(1 ether, 1, block.timestamp + 1 days),
+            signature
+        );
+    }
 }
