@@ -182,4 +182,25 @@ contract CounterTest is Test {
 
         authorizationA.execute(auth, signature);
     }
+
+    function test_Revert_WrongDomain() public {
+        TypedAuthorization.Authorization memory auth = _authorization(
+            1 ether,
+            0,
+            block.timestamp + 1 days
+        );
+
+        // Signature belongs to A's domain.
+        bytes memory signature = _sign(authorizationA, auth);
+
+        // B has a different DOMAIN_SEPARATOR.
+        assertTrue(
+            authorizationA.DOMAIN_SEPARATOR() !=
+                authorizationB.DOMAIN_SEPARATOR()
+        );
+
+        vm.expectRevert("Invalid signer");
+
+        authorizationB.execute(auth, signature);
+    }
 }
